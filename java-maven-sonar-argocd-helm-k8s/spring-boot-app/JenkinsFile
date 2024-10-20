@@ -24,6 +24,7 @@ pipeline {
         SONAR_URL = credentials('SONARQUBE_IP_ADDRESS')
       }
       steps {
+        echo "Sonar IP Address --> $SONAR_URL"
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
           sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
         }

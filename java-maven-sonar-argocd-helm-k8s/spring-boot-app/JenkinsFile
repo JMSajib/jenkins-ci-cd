@@ -49,8 +49,8 @@ pipeline {
     }
     stage('Update Deployment File') {
         environment {
-            GIT_REPO_NAME = "jenkins-ci-cd"
-            GIT_USER_NAME = "JMSajib"
+            GIT_REPO_NAME = "jenkins-ci-cd" // git repo
+            GIT_USER_NAME = "JMSajib" // git username
         }
         steps {
           withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {

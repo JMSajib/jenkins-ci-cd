@@ -21,17 +21,17 @@ pipeline {
         sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
       }
     }
-    stage('Static Code Analysis') {
-      environment {
-        SONAR_URL = credentials('SONARQUBE_IP_ADDRESS')
-      }
-      steps {
-        echo "Sonar IP Address --> $SONAR_URL"
-        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
-        }
-      }
-    }
+    // stage('Static Code Analysis') {
+    //   environment {
+    //     SONAR_URL = credentials('SONARQUBE_IP_ADDRESS')
+    //   }
+    //   steps {
+    //     echo "Sonar IP Address --> $SONAR_URL"
+    //     withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+    //       sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+    //     }
+    //   }
+    // }
     stage('Build and Push Docker Image') {
       environment {
         DOCKER_IMAGE = "jmsajib11/full-ci-cd:${BUILD_NUMBER}"

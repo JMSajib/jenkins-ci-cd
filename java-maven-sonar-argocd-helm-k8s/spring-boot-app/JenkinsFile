@@ -74,6 +74,13 @@ pipeline {
           // change this sc script
           sh '''
                 set -e
+
+                # Remove the existing directory if it exists
+                if [ -d "${GIT_REPO_NAME}" ]; then
+                    echo "Removing existing directory: ${GIT_REPO_NAME}"
+                    rm -rf ${GIT_REPO_NAME}
+                fi
+
                 # Clone the repository
                 git clone https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
                 

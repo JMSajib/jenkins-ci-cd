@@ -71,6 +71,7 @@ pipeline {
       }
       steps {
         withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+          // change this sc script
           sh '''
                 set -e
                 # Clone the repository

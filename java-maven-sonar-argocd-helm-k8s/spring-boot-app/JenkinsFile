@@ -88,7 +88,7 @@ pipeline {
                 git config user.name "${GIT_USER_NAME}"
 
                 # Update the deployment file
-                sed -i "s|image: jmsajib11/full-ci-cd:[0-9]\+|image: jmsajib11/full-ci-cd:${BUILD_NUMBER}|g" deployment.yml
+                sed -i "s|image: jmsajib11/full-ci-cd:[0-9]\\+|image: jmsajib11/full-ci-cd:${BUILD_NUMBER}|g" deployment.yml
 
                 # Add and commit changes
                 git add deployment.yml

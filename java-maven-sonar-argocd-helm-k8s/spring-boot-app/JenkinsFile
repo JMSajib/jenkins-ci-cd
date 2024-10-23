@@ -1,18 +1,18 @@
 pipeline {
-  agent any
+  // agent any
+
+  agent {
+    docker {
+      // image 'abhishekf5/maven-abhishek-docker-agent:v1'
+      image 'jmsajib11/maven-docker-image:v1'
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+    }
+  }
 
   stages {
-    // stage('Clean Workspace') {
-    //   steps {
-    //     deleteDir()
-    //   }
-    // }
-
     stage('Checkout') {
       steps {
         sh 'echo passed'
-        // Uncomment the below line to use your actual Git repo
-        // git branch: 'main', url: 'https://github.com/your_git'
       }
     }
 
@@ -27,21 +27,19 @@ pipeline {
       }
     }
 
-    // Uncomment and configure SonarQube when ready
-    // stage('Static Code Analysis') {
-    //   environment {
-    //     SONAR_URL = credentials('SONARQUBE_IP_ADDRESS')
-    //   }
-    //   steps {
-    //     echo "Sonar IP Address --> $SONAR_URL"
-    //     withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-    //       sh '''
-    //         cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
-    //         mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}
-    //       '''
-    //     }
-    //   }
-    // }
+    stage('Static Code Analysis') {
+      environment {
+        SONAR_URL = credentials('SONARQUBE_IP_ADDRESS')
+      }
+      steps {
+        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+          sh '''
+            cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
+            mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}
+          '''
+        }
+      }
+    }
 
     stage('Build and Push Docker Image') {
       environment {

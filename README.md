@@ -1,62 +1,143 @@
-# Jenkins Pipeline for Java based application using Maven, SonarQube, Argo CD, Helm and Kubernetes
 
-![Screenshot 2023-03-28 at 9 38 09 PM](https://user-images.githubusercontent.com/43399466/228301952-abc02ca2-9942-4a67-8293-f76647b6f9d8.png)
+# CI/CD Pipeline for Java Application using Jenkins, Maven, SonarQube, Argo CD, and Minikube
 
+This guide provides a step-by-step setup of an end-to-end Jenkins pipeline for a Java application. The pipeline integrates with tools like SonarQube for code quality checks, Argo CD for Kubernetes-based deployments, and Minikube for local Kubernetes clusters.
 
-Here are the step-by-step details to set up an end-to-end Jenkins pipeline for a Java application using SonarQube, Argo CD, and Kubernetes:
+![Full CI/CD](./excali.png)
 
-Prerequisites:
+## Prerequisites
 
-   -  Java application code hosted on a Git repository
-   -   Jenkins server
-   -  Kubernetes cluster
-   -  Helm package manager
-   -  Argo CD
+Before starting, ensure the following are available:
 
-Steps:
+- Java application code hosted on a Git repository
+- Jenkins Server ([Jenkins Installation Guide](https://www.jenkins.io/doc/book/installing/linux/#debianubuntu))
+- Minikube installed locally ([Minikube Installation Guide](https://minikube.sigs.k8s.io/docs/start/))
+- SonarQube Server ([SonarQube Installation Guide](https://docs.sonarsource.com/sonarqube/10.4/setup-and-upgrade/install-the-server/installing-sonarqube-from-zip-file/))
+- Argo CD for continuous deployment
 
-    1. Install the necessary Jenkins plugins:
-       1.1 Git plugin
-       1.2 Maven Integration plugin
-       1.3 Pipeline plugin
-       1.4 Kubernetes Continuous Deploy plugin
+## Step-by-Step Guide
 
-    2. Create a new Jenkins pipeline:
-       2.1 In Jenkins, create a new pipeline job and configure it with the Git repository URL for the Java application.
-       2.2 Add a Jenkinsfile to the Git repository to define the pipeline stages.
+### 1. Install Necessary Jenkins Plugins
 
-    3. Define the pipeline stages:
-        Stage 1: Checkout the source code from Git.
-        Stage 2: Build the Java application using Maven.
-        Stage 3: Run unit tests using JUnit and Mockito.
-        Stage 4: Run SonarQube analysis to check the code quality.
-        Stage 5: Package the application into a JAR file.
-        Stage 6: Deploy the application to a test environment using Helm.
-        Stage 7: Run user acceptance tests on the deployed application.
-        Stage 8: Promote the application to a production environment using Argo CD.
+1. **Docker Pipeline Plugin**:  
+   This allows us to run the pipeline inside a Docker agent, simplifying environment management (e.g., cleaning up images, automatic removal of containers, and volume handling).
+   
+2. **SonarQube Scanner for Jenkins**:  
+   Required for integrating SonarQube code quality analysis into the Jenkins pipeline.
 
-    4. Configure Jenkins pipeline stages:
-        Stage 1: Use the Git plugin to check out the source code from the Git repository.
-        Stage 2: Use the Maven Integration plugin to build the Java application.
-        Stage 3: Use the JUnit and Mockito plugins to run unit tests.
-        Stage 4: Use the SonarQube plugin to analyze the code quality of the Java application.
-        Stage 5: Use the Maven Integration plugin to package the application into a JAR file.
-        Stage 6: Use the Kubernetes Continuous Deploy plugin to deploy the application to a test environment using Helm.
-        Stage 7: Use a testing framework like Selenium to run user acceptance tests on the deployed application.
-        Stage 8: Use Argo CD to promote the application to a production environment.
+---
 
-    5. Set up Argo CD:
-        Install Argo CD on the Kubernetes cluster.
-        Set up a Git repository for Argo CD to track the changes in the Helm charts and Kubernetes manifests.
-        Create a Helm chart for the Java application that includes the Kubernetes manifests and Helm values.
-        Add the Helm chart to the Git repository that Argo CD is tracking.
+### 2. Create a New Jenkins Pipeline
 
-    6. Configure Jenkins pipeline to integrate with Argo CD:
-       6.1 Add the Argo CD API token to Jenkins credentials.
-       6.2 Update the Jenkins pipeline to include the Argo CD deployment stage.
+1. **Create a pipeline job** in Jenkins and configure it with the Git repository URL of your Java application.
+2. **Add the Jenkinsfile** path from your repository.
 
-    7. Run the Jenkins pipeline:
-       7.1 Trigger the Jenkins pipeline to start the CI/CD process for the Java application.
-       7.2 Monitor the pipeline stages and fix any issues that arise.
+---
 
-This end-to-end Jenkins pipeline will automate the entire CI/CD process for a Java application, from code checkout to production deployment, using popular tools like SonarQube, Argo CD, Helm, and Kubernetes.
+### 3. Set Jenkins Variable
+
+1. **Generate Github Personal Access Token** You need to generate personal access token and save in credentials section as a secret.
+2. **Docker Credentials** For push the docker image, you need to store the docker credentials.
+3. **SonarQube Token** For accessing SOnarQube, you need to generate sonarqube secret token and store this to the jenkins.
+3. **SonarQube IP Address** For accessing SonarQube Server, you can store the IP Address but its optional.
+3. **Github Email Address** You can store the github email address but its optional.
+
+---
+
+### 4. Define Jenkins Pipeline Stages
+
+- **Stage 1: Checkout Code**  
+  Checkout the source code from the Git repository.
+
+- **Stage 2: Build Application**  
+  Build the Java application using Maven.
+
+- **Stage 3: Code Quality Analysis**  
+  Run SonarQube analysis for code quality checks.
+
+- **Stage 4: Build Docker Image**  
+  Build and push the Docker image to a Docker registry.
+
+- **Stage 5: Update Kubernetes Manifests**  
+  Clone the manifest repository, make necessary changes, and push updated files for Argo CD.
+
+---
+
+### 5. Install Minikube on Local Machine
+
+To deploy the application locally on Kubernetes, Minikube must be installed.
+
+- Follow the official documentation for Minikube installation:  
+  [Minikube Installation Guide](https://minikube.sigs.k8s.io/docs/start/)
+
+---
+
+### 6. Setting up Argo CD
+
+1. **Install Argo CD** on your Kubernetes cluster. Click the install button to find the full process. ([Argo CD installation](https://operatorhub.io/operator/argocd-operator))
+2. Install the Argo CD default cluster by following this. Create a YML file, paste the configuration, and apply your YML. ([Argo CD default clusters](https://argocd-operator.readthedocs.io/en/latest/usage/basics/))
+3. Type the following command to check the services:
+
+   ```bash
+   kubectl get svc
+   ```
+
+   You should see the service `example-argocd-server`.
+
+4. Now, type the following command to edit the service:
+
+   ```bash
+   kubectl edit svc example-argocd-server
+   ```
+
+   Find the `type: ClusterIP` and change it to `type: NodePort`.
+
+5. Now we can login to our Argo CD UI by tunneling. Type
+    ```bash
+    minikube service example-argocd-server
+    ```
+    It will provide you `http://` link for login to the Argo CD UI, do not close this terminal.
+6. By default admin is the username and password is stored in the secret. Type 
+    ```bash
+    kubectl get secret
+    ```
+    You should get `example-argocd-cluster`. Now, type
+    ```bash
+    kubectl edit secret example-argocd-cluster
+    ```
+    copy the admin password but its encrypted, so we have to decode this. Now, type
+    ```bash
+    echo copy_password | base64 -d
+    ```
+    It will provide the password and ignore the `%` character if it appears. Now paste this to the UI and you should login to the Argo CD.
+---
+
+### 7. Configure Argo CD with Github
+
+1. Click the Create Application
+2. Give the application name
+3. Give the project name to `default`
+4. Select Sync `automatic`
+5. Give the github repo URL
+6. Give the path of deployment yml (e.g. if the deployment in the same level then put just `.` or you have to give the path).
+7. Select the provided cluster url
+8. Give `default` namespace in the namespace section
+
+---
+
+### 8. Run the Pipeline
+
+- Trigger the Jenkins pipeline to start the CI process.
+- Monitor the pipeline’s progress and resolve any issues during the stages.
+- If build is successful then Argo CD will create the pods and services
+- Find the service name and type 
+```bash 
+ minikube service service-name 
+```
+It will generate a tunnel url and you can access this by your browser.
+- Change your code (e.g. add some text `hello world` and push to the github and trigger the pipeline)
+- Argo CD will automatically observe the changes and deploy the deployment files
+
+---
+
+This guide automates the entire CI process for Java application, from code checkout to production deployment, using Jenkins, SonarQube, and CD process with Argo CD with Kubernetes(minikube) deployment.

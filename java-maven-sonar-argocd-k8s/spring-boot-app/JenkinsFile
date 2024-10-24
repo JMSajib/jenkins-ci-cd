@@ -1,12 +1,8 @@
 pipeline {
-  // agent any
-
   agent {
     docker {
-      // image 'abhishekf5/maven-abhishek-docker-agent:v1'
       image 'jmsajib11/maven-docker-image:v1'
       args '--network="host" --user root -v /var/run/docker.sock:/var/run/docker.sock'
-      // args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
     }
   }
 
@@ -66,7 +62,7 @@ pipeline {
       environment {
         GIT_REPO_NAME = "argo-cd-repo"
         GIT_USER_NAME = "JMSajib"
-        GIT_USER_EMAIL = "jm.sajib012@gmail.com"
+        GIT_USER_EMAIL = credentials('github-email')
       }
       steps {
         withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
@@ -74,11 +70,9 @@ pipeline {
           sh '''
                 set -e
 
-                # Remove the existing directory if it exists
-                if [ -d "${GIT_REPO_NAME}" ]; then
-                    echo "Removing existing directory: ${GIT_REPO_NAME}"
-                    rm -rf ${GIT_REPO_NAME}
-                fi
+                # Configure git user
+                git config user.email "${GIT_USER_EMAIL}"
+                git config user.name "${GIT_USER_NAME}"
 
                 # Clone the repository
                 git clone https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
@@ -88,10 +82,6 @@ pipeline {
 
                 # Optional: Ensure latest changes
                 git pull origin main
-
-                # Configure git user
-                git config user.email "${GIT_USER_EMAIL}"
-                git config user.name "${GIT_USER_NAME}"
 
                 # Update the deployment file
                 sed -i "s|image: jmsajib11/full-ci-cd:[0-9]\\+|image: jmsajib11/full-ci-cd:${BUILD_NUMBER}|g" deployment.yml

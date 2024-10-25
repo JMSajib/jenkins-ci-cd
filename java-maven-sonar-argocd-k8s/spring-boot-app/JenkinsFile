@@ -7,16 +7,6 @@ pipeline {
   }
 
   stages {
-    stage('Cleanup') {
-      steps {
-        // deleteDir() // Cleans up the workspace
-        sh '''
-        sudo chown -R jenkins:jenkins /var/lib/jenkins/workspace
-        sudo chmod -R 755 /var/lib/jenkins/workspace
-        '''
-      }
-    }
-
     stage('Checkout') {
       steps {
         sh 'echo passed'

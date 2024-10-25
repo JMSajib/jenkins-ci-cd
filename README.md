@@ -38,7 +38,7 @@ Before starting, ensure the following are available:
 
 1. **Generate Github Personal Access Token** You need to generate personal access token and save in credentials section as a secret.
 2. **Docker Credentials** For push the docker image, you need to store the docker credentials.
-3. **SonarQube Token** For accessing SOnarQube, you need to generate sonarqube secret token and store this to the jenkins.
+3. **SonarQube Token** For accessing SonarQube, you need to generate sonarqube secret token and store this to the jenkins.
 3. **SonarQube IP Address** For accessing SonarQube Server, you can store the IP Address but its optional.
 3. **Github Email Address** You can store the github email address but its optional.
 

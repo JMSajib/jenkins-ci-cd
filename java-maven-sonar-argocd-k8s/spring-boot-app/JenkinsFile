@@ -70,15 +70,15 @@ pipeline {
           sh '''
                 set -e
 
-                # Configure git user
-                git config user.email "${GIT_USER_EMAIL}"
-                git config user.name "${GIT_USER_NAME}"
-
                 # Clone the repository
                 git clone https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
                 
                 # Navigate to the repository directory
                 cd ${GIT_REPO_NAME}
+
+                # Configure git user
+                git config user.email "${GIT_USER_EMAIL}"
+                git config user.name "${GIT_USER_NAME}"
 
                 # Optional: Ensure latest changes
                 git pull origin main

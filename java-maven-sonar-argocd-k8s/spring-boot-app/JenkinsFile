@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
       image 'jmsajib11/maven-docker-image:v1'
-      args '--network="host" --user root -v /var/run/docker.sock:/var/run/docker.sock'
+      args '--network="host" --user root'
     }
   }
 

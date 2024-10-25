@@ -10,7 +10,6 @@ pipeline {
     stage('Cleanup') {
       steps {
         cleanWs() // Cleans up the workspace
-        sh 'sudo chown -R jenkins:jenkins /var/lib/jenkins/workspace' // Reset ownership if required
       }
     }
 

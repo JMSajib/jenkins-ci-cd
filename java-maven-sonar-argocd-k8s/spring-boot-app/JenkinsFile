@@ -18,7 +18,7 @@ pipeline {
         sh '''
           set -e
           ls -ltr
-          cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
+          cd java-maven-sonar-argocd-k8s/spring-boot-app
           mvn clean package -Dmaven.clean.failOnError=false
         '''
       }
@@ -31,7 +31,7 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
           sh '''
-            cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
+            cd java-maven-sonar-argocd-k8s/spring-boot-app
             mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}
           '''
         }
@@ -47,7 +47,7 @@ pipeline {
         script {
             sh '''
               set -e
-              cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
+              cd java-maven-sonar-argocd-k8s/spring-boot-app
               docker build -t ${DOCKER_IMAGE} .
             '''
             def dockerImage = docker.image("${DOCKER_IMAGE}")

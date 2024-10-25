@@ -7,11 +7,11 @@ pipeline {
   }
 
   stages {
-    stage('Cleanup') {
-      steps {
-        cleanWs() // Cleans up the workspace
-      }
-    }
+    // stage('Cleanup') {
+    //   steps {
+    //     deleteDir() // Cleans up the workspace
+    //   }
+    // }
 
     stage('Checkout') {
       steps {
@@ -104,6 +104,11 @@ pipeline {
             git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
           '''
         }
+      }
+    }
+    stage('Cleanup') {
+      steps {
+        deleteDir() // Cleans up the workspace
       }
     }
   }

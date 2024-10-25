@@ -7,6 +7,12 @@ pipeline {
   }
 
   stages {
+    stage('Cleanup') {
+      steps {
+        cleanWs() // Cleans up the workspace
+      }
+    }
+
     stage('Checkout') {
       steps {
         sh 'echo passed'
@@ -66,33 +72,37 @@ pipeline {
       }
       steps {
         withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-          // change this sc script
           sh '''
-                set -e
+            set -e
 
-                # Clone the repository
-                git clone https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
-                
-                # Navigate to the repository directory
-                cd ${GIT_REPO_NAME}
+            # Check if directory exists and remove it if necessary
+            if [ -d "${GIT_REPO_NAME}" ]; then
+              rm -rf ${GIT_REPO_NAME}
+            fi
 
-                # Configure git user
-                git config user.email "${GIT_USER_EMAIL}"
-                git config user.name "${GIT_USER_NAME}"
+            # Clone the repository
+            git clone https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
 
-                # Optional: Ensure latest changes
-                git pull origin main
+            # Navigate to the repository directory
+            cd ${GIT_REPO_NAME}
 
-                # Update the deployment file
-                sed -i "s|image: jmsajib11/full-ci-cd:[0-9]\\+|image: jmsajib11/full-ci-cd:${BUILD_NUMBER}|g" deployment.yml
+            # Configure git user
+            git config user.email "${GIT_USER_EMAIL}"
+            git config user.name "${GIT_USER_NAME}"
 
-                # Add and commit changes
-                git add deployment.yml
-                git commit -m "Update deployment image to version ${BUILD_NUMBER} [Jenkins build ${BUILD_NUMBER}]"
+            # Optional: Ensure latest changes
+            git pull origin main
 
-                # Push changes back to the repository
-                git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
-            '''
+            # Update the deployment file
+            sed -i "s|image: jmsajib11/full-ci-cd:[0-9]\\+|image: jmsajib11/full-ci-cd:${BUILD_NUMBER}|g" deployment.yml
+
+            # Add and commit changes
+            git add deployment.yml
+            git commit -m "Update deployment image to version ${BUILD_NUMBER} [Jenkins build ${BUILD_NUMBER}]"
+
+            # Push changes back to the repository
+            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+          '''
         }
       }
     }
